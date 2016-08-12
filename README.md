@@ -2,7 +2,7 @@
 
 ## content
 
-- see `webhook_examples.py` to see how to work with our webhook api
+- `webhook_examples.py` - how to work with our webhook api
 
 ## requirements to run scripts
 
