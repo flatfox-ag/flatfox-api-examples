@@ -6,8 +6,16 @@
 
 ## requirements to run scripts
 
-```
-virtualenv env
-source env/bin/activate
-pip install --requirement REQUIREMENTS
-```
+0. create a virtual env and install requirements
+
+    ```
+    virtualenv env
+    source env/bin/activate
+    pip install --requirement REQUIREMENTS
+    ```
+
+1. run a script like
+
+    ```
+    python xyz.py
+    ```
