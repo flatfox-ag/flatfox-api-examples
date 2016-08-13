@@ -1,20 +1,20 @@
+import threading
 import requests
-import json
+import utils
 
 
-# --------------------------------------------------
+# -----------------------------------------------------------------------------
 # API CONFIG
-# NB: Our API uses HTTP Basic Auth. You have to use
-#     the API key as username and leave the password
-#     blank for each request.
-# --------------------------------------------------
+# NB: Our API uses HTTP Basic Auth. You have to use the API key as username and
+#     leave the password blank for each request.
+# -----------------------------------------------------------------------------
 API_SERVER_URL = 'https://flatfox.ch'
-API_KEY = 'sk_xxxxxxxxxxxxxxxxxxxxxxxx'
+API_KEY = 'sk_xxxxxxxxxxxxxxxxxxxxxx'
 
 
-# --------------------------------------------------
+# -----------------------------------------------------------------------------
 # API ENDPOINTS
-# --------------------------------------------------
+# -----------------------------------------------------------------------------
 WEBHOOK_URL = '{host}/api/v1/webhook/'.format(host=API_SERVER_URL)
 EVENT_URL = '{host}/api/v1/webhook/event/'.format(host=API_SERVER_URL)
 
@@ -28,7 +28,7 @@ def register_webhook():
       If you register a 'push' webhook the 'push_url' attribute is required
       too. This url will be called with a POST request for each new event.
 
-    - 'postbox'
+    - 'postbox' (polling)
       If you register a 'postbox' webhook, you have to pull pending events
       by yourself frequently. See example in get_events below.
 
@@ -42,17 +42,15 @@ def register_webhook():
         }
 
     """
-
-    # check if webhook exists already
+    # check if webhook exists already and delete it if so.
     r = requests.get(WEBHOOK_URL, auth=(API_KEY, ''))
+    if r.status_code == 200:
+        requests.delete(WEBHOOK_URL, auth=(API_KEY, ''))
 
-    # if not, create new webhook of type postbox
-    if r.status_code != 200:
-        r = requests.post(WEBHOOK_URL, auth=(API_KEY, ''),
-                          data={'delivery_type': 'postbox'})
-
-    print_response(r)
-    return r.json()
+    # create the webhook we want for this example
+    r = requests.post(WEBHOOK_URL, auth=(API_KEY, ''),
+                      data={'delivery_type': 'postbox'})
+    utils.print_response(r)
 
 
 def get_events():
@@ -86,29 +84,8 @@ def get_events():
 
     """
     r = requests.get(EVENT_URL, auth=(API_KEY, ''))
+    utils.print_response(r)
 
-    print_response(r)
-    return r.json()
-
-
-def get_dossier_details(event):
-    """
-    This is an example of how to get dossier details of a 'push_dossier'
-    type event. The api resource url is nested in 'data', 'dossier', 'url'.
-
-    Example response for '/api/v1/dossier/123/':
-
-        {
-          "id": 123,
-          ...
-        }
-
-    """
-    url = '{host}{path}'.format(host=API_SERVER_URL,
-                                path=event['data']['dossier']['url'])
-    r = requests.get(url, auth=(API_KEY, ''))
-
-    print_response(r)
     return r.json()
 
 
@@ -128,46 +105,18 @@ def get_application_details(event):
     url = '{host}{path}'.format(host=API_SERVER_URL,
                                 path=event['data']['application']['url'])
     r = requests.get(url, auth=(API_KEY, ''))
+    utils.print_response(r)
 
-    print_response(r)
     return r.json()
 
 
 def delete_event(event):
-    """
-    This example shows how to delete a worked off event to remove it from the
-    event list and mark it as finally 'delivered' at flatfox.
-    """
     url = '{event_url}{id}'.format(event_url=EVENT_URL, id=event['id'])
     r = requests.delete(url, auth=(API_KEY, ''))
-
-    print_response(r)
-
-
-def print_response(response):
-    """
-    This is just a helper to print a response nicely.
-    """
-    print '-' * 80
-    print 'STATUS CODE: {}'.format(response.status_code)
-    try:
-        print 'JSON RESPONSE:'
-        print json.dumps(response.json(), indent=2)
-    except ValueError:
-        print response.text
-    print '-' * 80
+    utils.print_response(r)
 
 
-def app():
-    """
-    Example of how to work with this webhook.
-    """
-    # Register a postbox webhook
-    register_webhook()
-
-    # Get events to work off
-    # NB: This should be done periodically if a 'postbox' webhook type is used.
-    #     Otherwise you should consider to use a 'push' webhook.
+def check_for_new_events(interval):
     events = get_events()
 
     # Go through events
@@ -177,15 +126,23 @@ def app():
         if event['type'] == 'push_dossier':
 
             # Get dossier and application details
-            dossier = get_dossier_details(event=event)
-            application = get_application_details(event=event)
+            get_application_details(event=event)
 
             # ... do something with this stuff ...
 
-            # Finally delete the event after hard work
+            # Finally delete the event
             delete_event(event=event)
+
+    # Start interval to check again for new events later
+    # NB: You should consider to use a 'push' webhook instead of polling
+    print "Checking again for new events in {} seconds...".format(interval)
+    print "(Press CTRL+C to quit)"
+    threading.Timer(interval, check_for_new_events, [interval]).start()
 
 
 if __name__ == "__main__":
-    # this python script just runs the app function from above
-    app()
+    # Register a postbox webhook
+    register_webhook()
+
+    # Start checking for new events
+    check_for_new_events(interval=10)

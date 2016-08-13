@@ -2,7 +2,10 @@
 
 ## content
 
-- `webhook_examples.py` - how to work with our webhook api
+### handle flatfox events
+
+- How to use our webhook push service, see `webhook_push_example.py` 
+- How to use polling instead, see `webhook_postbox_example.py`
 
 ## requirements to run scripts
 
