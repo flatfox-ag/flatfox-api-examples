@@ -25,7 +25,6 @@ YOUR_PUSH_SERVER_URL = 'http://127.0.0.1:5000'
 # API ENDPOINTS
 # -----------------------------------------------------------------------------
 WEBHOOK_URL = '{host}/api/v1/webhook/'.format(host=API_SERVER_URL)
-EVENT_URL = '{host}/api/v1/webhook/event/'.format(host=API_SERVER_URL)
 
 
 def register_webhook():
@@ -35,7 +34,7 @@ def register_webhook():
 
     - 'push'
       If you register a 'push' webhook the 'push_url' attribute is required
-      too. This url will be called with a POST request for each new event.
+      too. This url will be called with a POST request with a list of new events.
 
     - 'postbox' (polling)
       If you register a 'postbox' webhook, you have to pull pending events
@@ -90,16 +89,19 @@ app = Flask(__name__)
 
 
 @app.route('/endpoint', methods=['POST'])
-def handle_event():
-    event = request.json
+def handle_events():
+    events = request.json
 
-    # Handle 'push_dossier' events
-    if event['type'] == 'push_dossier':
+    # Go through events
+    for event in events:
 
-        # Get application details
-        get_application_details(event=event)
+        # Handle 'push_dossier' events
+        if event['type'] == 'push_dossier':
 
-        # ... do something with this stuff ...
+            # Get application details
+            get_application_details(event=event)
+
+            # ... do something with this stuff ...
 
     return "OK"
 

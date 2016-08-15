@@ -26,7 +26,7 @@ def register_webhook():
 
     - 'push'
       If you register a 'push' webhook the 'push_url' attribute is required
-      too. This url will be called with a POST request for each new event.
+      too. This url will be called with a POST request with a list of new events.
 
     - 'postbox' (polling)
       If you register a 'postbox' webhook, you have to pull pending events
