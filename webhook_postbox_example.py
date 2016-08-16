@@ -1,5 +1,6 @@
 import threading
 import requests
+import json
 import utils
 
 
@@ -62,23 +63,24 @@ def get_events():
 
         [
           {
+            "type": "push_dossier",
             "data": {
               "dossier": {
-                "url": "/api/v1/dossier/123/",
-                "pk": 123
+                "url": "/api/v1/application/51617/form/",
+                "pk": 31777
               },
               "application": {
-                "url": "/api/v1/application/345/",
-                "pk": 345
+                "url": "/api/v1/application/51617/",
+                "pk": 51617
               },
               "object": {
-                "house": "06",
-                "property": "2030",
-                "object": "0003"
+                "house": null,
+                "property": null,
+                "object": null,
+                "pk": 8769
               }
             },
-            "type": "push_dossier",
-            "id": "6fe6c598-5897-4a4b-8e8d-b4a90feb2e62"
+            "id": "e79b75c5-135e-44f3-95a2-304a661dac28"
           }
         ]
 
@@ -89,25 +91,19 @@ def get_events():
     return r.json()
 
 
-def get_application_details(event):
+def get_dossier_details(event):
     """
-    This is an example of how to get application details of a 'push_dossier'
-    type event. The api resource url is nested in 'data', 'application', 'url'.
-
-    Example response for '/api/v1/application/345/'
-
-        {
-          "id": 345,
-          ...
-        }
-
+    This is an example of how to get dossier details of a 'push_dossier'
+    type event. The api resource url is nested in 'data', 'dossier', 'url'.
     """
     url = '{host}{path}'.format(host=API_SERVER_URL,
-                                path=event['data']['application']['url'])
+                                path=event['data']['dossier']['url'])
     r = requests.get(url, auth=(API_KEY, ''))
-    utils.print_response(r)
 
-    return r.json()
+    if r.status_code == 200:
+        return r.json()
+
+    return None
 
 
 def delete_event(event):
@@ -125,10 +121,13 @@ def check_for_new_events(interval):
         # Handle 'push_dossier' events
         if event['type'] == 'push_dossier':
 
-            # Get dossier and application details
-            get_application_details(event=event)
+            # Get application details
+            dossier = get_dossier_details(event=event)
 
             # ... do something with this stuff ...
+            print '=' * 80
+            print 'Dossier details: {}'.format(json.dumps(dossier, indent=2))
+            print '=' * 80
 
             # Finally delete the event
             delete_event(event=event)

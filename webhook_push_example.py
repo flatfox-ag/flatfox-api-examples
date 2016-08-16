@@ -1,4 +1,5 @@
 import requests
+import json
 import utils
 
 from flask import Flask, request
@@ -64,25 +65,19 @@ def register_webhook():
     utils.print_response(r)
 
 
-def get_application_details(event):
+def get_dossier_details(event):
     """
-    This is an example of how to get application details of a 'push_dossier'
-    type event. The api resource url is nested in 'data', 'application', 'url'.
-
-    Example response for '/api/v1/application/345/'
-
-        {
-          "id": 345,
-          ...
-        }
-
+    This is an example of how to get dossier details of a 'push_dossier'
+    type event. The api resource url is nested in 'data', 'dossier', 'url'.
     """
     url = '{host}{path}'.format(host=API_SERVER_URL,
-                                path=event['data']['application']['url'])
+                                path=event['data']['dossier']['url'])
     r = requests.get(url, auth=(API_KEY, ''))
-    utils.print_response(r)
 
-    return r.json()
+    if r.status_code == 200:
+        return r.json()
+
+    return None
 
 
 app = Flask(__name__)
@@ -92,6 +87,10 @@ app = Flask(__name__)
 def handle_events():
     events = request.json
 
+    print '=' * 80
+    print 'Received events: {}'.format(json.dumps(events, indent=2))
+    print '=' * 80
+
     # Go through events
     for event in events:
 
@@ -99,9 +98,12 @@ def handle_events():
         if event['type'] == 'push_dossier':
 
             # Get application details
-            get_application_details(event=event)
+            dossier = get_dossier_details(event=event)
 
             # ... do something with this stuff ...
+            print '=' * 80
+            print 'Dossier details: {}'.format(json.dumps(dossier, indent=2))
+            print '=' * 80
 
     return "OK"
 
