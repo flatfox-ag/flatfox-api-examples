@@ -2,6 +2,10 @@
 
 ## content
 
+### creat a flat
+
+- How to create a pre-flat and how to get the apply form, see `create_preflat_example.py`
+
 ### handle flatfox events
 
 - How to use our webhook push service, see `webhook_push_example.py` 
