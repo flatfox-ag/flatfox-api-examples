@@ -55,12 +55,11 @@ def create_pre_flat():
 def get_apply_pdf(flat_pk):
     """
     Get apply pdf with newly created flat pk.
-    The endpoint returns a JSON with the following structure:
+    The endpoint returns a JSON with a pdf field which contains a base64
+    encoded pdf file:
 
         {
-            "content": "JVBERi0xLjUKJbXtrvsKMyAwIG9iago8PCAvTGVuZ3RoIDQg...",
-            "content-type": "application/pdf",
-            "content-encoding": "base64"
+            "pdf": "JVBERi0xLjUKJbXtrvsKMyAwIG9iago8PCAvTGVuZ3RoIDQg...",
         }
 
     """
