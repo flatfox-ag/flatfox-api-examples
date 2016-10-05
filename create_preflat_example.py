@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import requests
 import utils
+import base64
 
 
 # -----------------------------------------------------------------------------
@@ -53,13 +54,23 @@ def create_pre_flat():
 
 def get_apply_pdf(flat_pk):
     """
-    Get german apply pdf with newly created flat pk
+    Get apply pdf with newly created flat pk.
+    The endpoint returns a JSON with the following structure:
+
+        {
+            "content": "JVBERi0xLjUKJbXtrvsKMyAwIG9iago8PCAvTGVuZ3RoIDQg...",
+            "content-type": "application/pdf",
+            "content-encoding": "base64"
+        }
+
     """
     url = MY_FLAT_APPLY_PDF_URL.format(host=API_SERVER_URL, pk=flat_pk)
     r = requests.get(url, auth=(API_KEY, ''), stream=True)
+    content = base64.b64decode(r.json()['content'])
+
     filename = '{pk}_apply_form.pdf'.format(pk=flat_pk)
     with open(filename, 'wb') as out_file:
-        out_file.write(r.content)
+        out_file.write(content)
     del r
 
 
