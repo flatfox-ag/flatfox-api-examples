@@ -20,6 +20,31 @@ MY_FLAT_URL = '{host}/api/v1/my-flat/'.format(host=API_SERVER_URL)
 MY_FLAT_APPLY_PDF_URL = '{host}/api/v1/my-flat/{pk}/apply-cards-pdf/'
 
 
+def get_existing_pre_flat():
+    """
+    Example how to get an already existing pre flat.
+
+    We add query parameters to the my-flat-list api to filter by ref and
+    status like:
+
+        /api/v1/my-flat/?ref_property=12&ref_house=23&ref_object=39&status=pre
+
+    """
+    params = {
+        "status": "pre",
+        "ref_property": "12",
+        "ref_house": "23",
+        "ref_object": "39",
+    }
+    r = requests.get(MY_FLAT_URL, auth=(API_KEY, ''), params=params)
+    utils.print_response(r)
+
+    if r.json()['count'] > 0:
+        return r.json()['results'][0]
+
+    return None
+
+
 def create_pre_flat():
     """
     Example of how to create a pre-flat.
@@ -74,11 +99,15 @@ def get_apply_pdf(flat_pk):
 
 
 if __name__ == "__main__":
-    # First create a pre-flat
-    flat = create_pre_flat()
+    # First we check if a preflat already exists
+    flat = get_existing_pre_flat()
+
+    # If not, we create a pre-flat
+    if not flat:
+        flat = create_pre_flat()
 
     # Then get the apply pdf
     get_apply_pdf(flat_pk=flat['pk'])
 
-    # Now a file named apply_form.pdf should be created
+    # Now a file named ####_apply_form.pdf should be created
     # next to this script
