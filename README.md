@@ -11,6 +11,10 @@
 - How to use our webhook push service, see `webhook_push_example.py` 
 - How to use polling instead, see `webhook_postbox_example.py`
 
+### Choose applicant
+
+- How to choose a specific applicant and archive the flat, see `choose_applicant_example.py`
+
 ## requirements to run scripts
 
 0. create a virtual env and install requirements
