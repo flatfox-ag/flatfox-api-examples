@@ -58,19 +58,21 @@ def create_pre_flat():
     data = {
         "status": "pre",
 
+        # unique for active flats (status in pre, pub, dis)
         "ref_property": "12",
         "ref_house": "23",
         "ref_object": "39",
 
-        "street": "Uetlibergstrasse",
-        "street_number": "129",
+        # required fields
+        "street": "Uetlibergstrasse 129",
         "zipcode": "8045",
         "city": u"Zürich",
 
-        "floor": None,
-        "number_of_rooms": "3.0",
-        "rent_charges": 100,
-        "rent_gross": 2070
+        # optional fields
+        # "floor": None,
+        # "number_of_rooms": "3.0",
+        # "rent_charges": 100,
+        # "rent_gross": 2070
     }
     r = requests.post(MY_FLAT_URL, auth=(API_KEY, ''), data=data)
     utils.print_response(r)
