@@ -1,3 +1,4 @@
 *.pyc
+*.pdf
 env/
 .DS_Store
