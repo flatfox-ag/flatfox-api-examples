@@ -18,6 +18,43 @@ API_KEY = 'sk_xxxxxxxxxxxxxxxxxxxxxx'
 # -----------------------------------------------------------------------------
 MY_FLAT_URL = '{host}/api/v1/my-flat/'.format(host=API_SERVER_URL)
 MY_FLAT_APPLY_PDF_URL = '{host}/api/v1/my-flat/{pk}/apply-cards-pdf/'
+EMPLOYEE_LOOKUP_URL = '{host}/api/v1/employee/'.format(host=API_SERVER_URL)
+
+
+def get_advertiser_id(name):
+    """
+    Example how to loop up an employee by email or name.
+    Goal is to get the employees user ID to use as advertiser for the pre flat.
+
+    The endpoint /api/v1/employee/ takes `fuzzy_name` OR `email` address as
+    filter attribute. If `fuzzy_name` is used, the results are ordered by best
+    match. The result would look like this:
+
+        [
+            {
+              "pk": 9012,
+              "dossier_pk": 31777,
+              "first_name": "Silvan",
+              "last_name": "Spross",
+              "name": "Silvan Spross",
+              "avatar_url": "/media/images/26fae47e85ale.jpg",
+              "avatar_color": null,
+              "organization": null,
+              "num_applications": {
+                "total": 10,
+              },
+              "phone_number": "079 391 97 11",
+              "email": "silvan.spross@flatfox.ch"
+            },
+            ...
+        ]
+
+    """
+    r = requests.get(EMPLOYEE_LOOKUP_URL, auth=(API_KEY, ''), params={
+        'fuzzy_name': name,  # Or for exact matches only: 'email': email,
+    })
+    utils.print_response(r)
+    return r.json()[0]['pk']
 
 
 def get_existing_pre_flat():
@@ -45,7 +82,7 @@ def get_existing_pre_flat():
     return None
 
 
-def create_pre_flat():
+def create_pre_flat(advertiser_id):
     """
     Example of how to create a pre-flat.
 
@@ -67,6 +104,11 @@ def create_pre_flat():
         "street": "Uetlibergstrasse 129",
         "zipcode": "8045",
         "city": u"Zürich",
+
+        # advertisers takes a list of objects with a pk
+        "advertisers": [
+            {"pk": advertiser_id}
+        ],
 
         # optional fields
         # "year_built": 1995,
@@ -105,9 +147,10 @@ if __name__ == "__main__":
     # First we check if a preflat already exists
     flat = get_existing_pre_flat()
 
-    # If not, we create a pre-flat
+    # If not, we look up the employee ID and create a pre-flat
     if not flat:
-        flat = create_pre_flat()
+        advertiser_id = get_advertiser_id(name="Silvan Spross")
+        flat = create_pre_flat(advertiser_id=advertiser_id)
 
     # Then get the apply pdf
     get_apply_pdf(flat_pk=flat['pk'])
