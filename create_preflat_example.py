@@ -133,7 +133,11 @@ def get_apply_pdf(flat_pk):
 
     """
     url = MY_FLAT_APPLY_PDF_URL.format(host=API_SERVER_URL, pk=flat_pk)
-    r = requests.get(url, auth=(API_KEY, ''), stream=True)
+
+    # Default language is English, this example shows how to get the apply
+    # card PDF in German
+    headers = {"Accept-Language": "de"}
+    r = requests.get(url, auth=(API_KEY, ''), headers=headers)
     content = base64.b64decode(r.json()['pdf'])
 
     filename = '{pk}_apply_form.pdf'.format(pk=flat_pk)
