@@ -23,12 +23,11 @@ EMPLOYEE_LOOKUP_URL = '{host}/api/v1/employee/'.format(host=API_SERVER_URL)
 
 def get_advertiser_id(name):
     """
-    Example how to loop up an employee by email or name.
+    Example how to look up an employee by email or name.
     Goal is to get the employees user ID to use as advertiser for the pre flat.
 
     The endpoint /api/v1/employee/ takes `fuzzy_name` OR `email` address as
-    filter attribute. If `fuzzy_name` is used, the results are ordered by best
-    match. The result would look like this:
+    filter attribute. The result would look like this:
 
         [
             {
