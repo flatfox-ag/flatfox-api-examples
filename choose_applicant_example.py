@@ -25,7 +25,7 @@ def choose_specific_applicant(pk):
     """
     data = {"status": "chos"}
     url = APPLICATION_API_URL.format(host=API_SERVER_URL, pk=pk)
-    r = requests.patch(url, auth=(API_KEY, ''), data=data)
+    r = requests.patch(url, auth=(API_KEY, ''), json=data)
     utils.print_response(r)
     return r.json()
 

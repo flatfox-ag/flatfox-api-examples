@@ -69,12 +69,13 @@ def create_pre_flat():
         "city": u"Zürich",
 
         # optional fields
+        # "year_built": 1995,
         # "floor": None,
         # "number_of_rooms": "3.0",
         # "rent_charges": 100,
         # "rent_gross": 2070
     }
-    r = requests.post(MY_FLAT_URL, auth=(API_KEY, ''), data=data)
+    r = requests.post(MY_FLAT_URL, auth=(API_KEY, ''), json=data)
     utils.print_response(r)
     return r.json()
 

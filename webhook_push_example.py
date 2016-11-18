@@ -60,7 +60,7 @@ def register_webhook():
     # NB: the url '/endpoint' has to be the same as in @app.route below.
     push_url = '{host}/endpoint'.format(host=YOUR_PUSH_SERVER_URL)
     r = requests.post(WEBHOOK_URL, auth=(API_KEY, ''),
-                      data={'delivery_type': 'push', 'push_url': push_url})
+                      json={'delivery_type': 'push', 'push_url': push_url})
 
     utils.print_response(r)
 

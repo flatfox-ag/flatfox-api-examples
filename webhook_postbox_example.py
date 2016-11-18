@@ -50,7 +50,7 @@ def register_webhook():
 
     # create the webhook we want for this example
     r = requests.post(WEBHOOK_URL, auth=(API_KEY, ''),
-                      data={'delivery_type': 'postbox'})
+                      json={'delivery_type': 'postbox'})
     utils.print_response(r)
 
 
