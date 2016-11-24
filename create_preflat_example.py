@@ -42,7 +42,7 @@ def get_advertiser_id(name):
               "num_applications": {
                 "total": 10,
               },
-              "phone_number": "079 391 97 11",
+              "phone_number": "079 393 92 12",
               "email": "silvan.spross@flatfox.ch"
             },
             ...
