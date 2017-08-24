@@ -9,7 +9,7 @@ import base64
 # NB: Our API uses HTTP Basic Auth. You have to use the API key as username and
 #     leave the password blank for each request.
 # -----------------------------------------------------------------------------
-API_SERVER_URL = 'https://flatfox.ch'
+API_SERVER_URL = 'https://stage.flatfox.ch'
 API_KEY = 'sk_xxxxxxxxxxxxxxxxxxxxxx'
 
 
@@ -69,9 +69,9 @@ def get_listings(status, ref_property, ref_house, ref_object):
     """
     params = {
         "status": status,
-        "ref_property": "12",
-        "ref_house": "23",
-        "ref_object": "39",
+        "ref_property": ref_property,
+        "ref_house": ref_house,
+        "ref_object": ref_object,
     }
     r = requests.get(MY_FLAT_URL, auth=(API_KEY, ''), params=params)
     utils.print_response(r)
@@ -147,6 +147,7 @@ def delete_listing(listing_pk):
     """
     url = MY_FLAT_DETAIL_URL.format(pk=listing_pk)
     r = requests.delete(url, auth=(API_KEY, ''))
+    utils.print_response(r)
     r.raise_for_status()
 
 
@@ -185,7 +186,6 @@ if __name__ == "__main__":
         ref_object="39")
 
     # If not, we look up the employee ID and create a pre-flat
-    # if not existing_pre_listings:
     advertiser_id = get_advertiser_id(name="Silvan Spross")
     flat = create_pre_listing(advertiser_id=advertiser_id)
 
