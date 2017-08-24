@@ -9,7 +9,7 @@ import base64
 # NB: Our API uses HTTP Basic Auth. You have to use the API key as username and
 #     leave the password blank for each request.
 # -----------------------------------------------------------------------------
-API_SERVER_URL = 'https://flatfox.ch'
+API_SERVER_URL = 'https://stage.flatfox.ch'
 API_KEY = 'sk_xxxxxxxxxxxxxxxxxxxxxx'
 
 
@@ -17,7 +17,8 @@ API_KEY = 'sk_xxxxxxxxxxxxxxxxxxxxxx'
 # API ENDPOINTS
 # -----------------------------------------------------------------------------
 MY_FLAT_URL = '{host}/api/v1/my-flat/'.format(host=API_SERVER_URL)
-MY_FLAT_APPLY_PDF_URL = '{host}/api/v1/my-flat/{pk}/apply-cards-pdf/'
+MY_FLAT_DETAIL_URL = MY_FLAT_URL + '{pk}/'
+MY_FLAT_APPLY_PDF_URL = MY_FLAT_DETAIL_URL + 'apply-cards-pdf/'
 EMPLOYEE_LOOKUP_URL = '{host}/api/v1/employee/'.format(host=API_SERVER_URL)
 
 
@@ -56,9 +57,9 @@ def get_advertiser_id(name):
     return r.json()[0]['pk']
 
 
-def get_existing_pre_flat():
+def get_listings(status, ref_property, ref_house, ref_object):
     """
-    Example how to get an already existing pre flat.
+    Example how to get an already existing listing.
 
     We add query parameters to the my-flat-list api to filter by ref and
     status like:
@@ -67,21 +68,31 @@ def get_existing_pre_flat():
 
     """
     params = {
-        "status": "pre",
-        "ref_property": "12",
-        "ref_house": "23",
-        "ref_object": "39",
+        "status": status,
+        "ref_property": ref_property,
+        "ref_house": ref_house,
+        "ref_object": ref_object,
     }
     r = requests.get(MY_FLAT_URL, auth=(API_KEY, ''), params=params)
     utils.print_response(r)
 
-    if r.json()['count'] > 0:
-        return r.json()['results'][0]
-
-    return None
+    return [listing['pk'] for listing in r.json()['results']]
 
 
-def create_pre_flat(advertiser_id):
+def get_existing_listings(ref_property, ref_house, ref_object):
+    return (
+        get_listings("pre", ref_property, ref_house, ref_object) +
+        get_listings("act", ref_property, ref_house, ref_object) +
+        get_listings("dis", ref_property, ref_house, ref_object))
+
+
+def delete_active_listings(ref_property, ref_house, ref_object):
+    existing = get_existing_listings(ref_property, ref_house, ref_object)
+    for pk in existing:
+        delete_listing(pk)
+
+
+def create_pre_listing(advertiser_id):
     """
     Example of how to create a pre-flat.
 
@@ -109,6 +120,11 @@ def create_pre_flat(advertiser_id):
             {"pk": advertiser_id}
         ],
 
+        # Set these to control the contact row in the application form flyer.
+        "advertiser_name": "Silvan Spross",
+        "advertiser_phone_number": "+41 44 111 22 33",
+        "advertiser_email": "silvan@spross.ch",
+
         # optional fields
         # "year_built": 1995,
         # "floor": None,
@@ -119,6 +135,20 @@ def create_pre_flat(advertiser_id):
     r = requests.post(MY_FLAT_URL, auth=(API_KEY, ''), json=data)
     utils.print_response(r)
     return r.json()
+
+
+def delete_listing(listing_pk):
+    """
+    A listing may be deleted by setting its state to "rem", or by just
+    using the DELETE verb on its detail URL. A deleted listing may still
+    be queried (e.g., using get_listings(status='rem')) though, but it
+    may not be changed afterwards, nor will it be visible on the portal,
+    except for advertisers.
+    """
+    url = MY_FLAT_DETAIL_URL.format(pk=listing_pk)
+    r = requests.delete(url, auth=(API_KEY, ''))
+    utils.print_response(r)
+    r.raise_for_status()
 
 
 def get_apply_pdf(flat_pk):
@@ -132,7 +162,7 @@ def get_apply_pdf(flat_pk):
         }
 
     """
-    url = MY_FLAT_APPLY_PDF_URL.format(host=API_SERVER_URL, pk=flat_pk)
+    url = MY_FLAT_APPLY_PDF_URL.format(pk=flat_pk)
 
     # Default language is English, this example shows how to get the apply
     # card PDF in German
@@ -147,13 +177,17 @@ def get_apply_pdf(flat_pk):
 
 
 if __name__ == "__main__":
-    # First we check if a preflat already exists
-    flat = get_existing_pre_flat()
+    # First, we delete previous listings with the same reference. This is
+    # of course a bad idea in production code, but allows us to re-created
+    # a listing with the same reference number on each run.
+    delete_active_listings(
+        ref_property="12",
+        ref_house="23",
+        ref_object="39")
 
     # If not, we look up the employee ID and create a pre-flat
-    if not flat:
-        advertiser_id = get_advertiser_id(name="Silvan Spross")
-        flat = create_pre_flat(advertiser_id=advertiser_id)
+    advertiser_id = get_advertiser_id(name="Silvan Spross")
+    flat = create_pre_listing(advertiser_id=advertiser_id)
 
     # Then get the apply pdf
     get_apply_pdf(flat_pk=flat['pk'])
