@@ -54,7 +54,8 @@ def get_advertiser_id(name):
         'fuzzy_name': name,  # Or for exact matches only: 'email': email,
     })
     utils.print_response(r)
-    return r.json()[0]['pk']
+    data = r.json()
+    return data[0]['pk'] if data else None
 
 
 def get_listings(status, ref_property, ref_house, ref_object):
@@ -116,9 +117,7 @@ def create_pre_listing(advertiser_id):
         "city": u"Zürich",
 
         # advertisers takes a list of objects with a pk
-        "advertisers": [
-            {"pk": advertiser_id}
-        ],
+        "advertisers": [{"pk": advertiser_id}] if advertiser_id else None,
 
         # Set these to control the contact row in the application form flyer.
         "advertiser_name": "Silvan Spross",
@@ -146,7 +145,10 @@ def delete_listing(listing_pk):
     except for advertisers.
     """
     url = MY_FLAT_DETAIL_URL.format(pk=listing_pk)
-    r = requests.delete(url, auth=(API_KEY, ''))
+    data = {
+        "status": "rem",
+    }
+    r = requests.patch(url, auth=(API_KEY, ''), json=data)
     utils.print_response(r)
     r.raise_for_status()
 
