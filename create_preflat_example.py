@@ -138,11 +138,10 @@ def create_pre_listing(advertiser_id):
 
 def delete_listing(listing_pk):
     """
-    A listing may be deleted by setting its state to "rem", or by just
-    using the DELETE verb on its detail URL. A deleted listing may still
-    be queried (e.g., using get_listings(status='rem')) though, but it
-    may not be changed afterwards, nor will it be visible on the portal,
-    except for advertisers.
+    A listing may be deleted by setting its state to "rem" on its detail URL.
+    A deleted listing may still be queried (e.g., using get_listings(status='rem'))
+    though, but it may not be changed afterwards, nor will it be visible on the
+    portal, except for advertisers.
     """
     url = MY_FLAT_DETAIL_URL.format(pk=listing_pk)
     data = {
