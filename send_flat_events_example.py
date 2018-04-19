@@ -39,7 +39,7 @@ def create_example_flat():
 # def delete_listing(listing_pk):
 #     """
 #     ATTENTION (2018-04-19): This feature is not working atm.
-
+#
 #     A listing may be deleted by setting its state to "rem" on its detail URL.
 #     A deleted listing may still be queried (e.g., using get_listings(status='rem'))
 #     though, but it may not be changed afterwards, nor will it be visible on the
@@ -71,5 +71,10 @@ def send_contract_confirmed_event(flat_id):
 
 
 if __name__ == "__main__":
+    # We just create an example listing to test the event api.
+    #
+    # If you need the `flat_id` of an existing listing take a look at:
+    # `get_listings(status, ref_property, ref_house, ref_object)` in
+    # `reate_preflat_example.py`
     flat = create_example_flat()
     send_contract_confirmed_event(flat_id=flat['pk'])
