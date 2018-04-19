@@ -2,6 +2,8 @@
 import requests
 import utils
 import base64
+import string
+import random
 
 
 # -----------------------------------------------------------------------------
@@ -87,13 +89,7 @@ def get_existing_listings(ref_property, ref_house, ref_object):
         get_listings("dis", ref_property, ref_house, ref_object))
 
 
-def delete_active_listings(ref_property, ref_house, ref_object):
-    existing = get_existing_listings(ref_property, ref_house, ref_object)
-    for pk in existing:
-        delete_listing(pk)
-
-
-def create_pre_listing(advertiser_id):
+def create_pre_listing(advertiser_id, ref_property, ref_house, ref_object):
     """
     Example of how to create a pre-flat.
 
@@ -107,9 +103,9 @@ def create_pre_listing(advertiser_id):
         "status": "pre",
 
         # unique for active flats (status in pre, pub, dis)
-        "ref_property": "12",
-        "ref_house": "23",
-        "ref_object": "39",
+        "ref_property": ref_property,
+        "ref_house": ref_house,
+        "ref_object": ref_object,
 
         # required fields
         "street": "Uetlibergstrasse 129",
@@ -134,22 +130,6 @@ def create_pre_listing(advertiser_id):
     r = requests.post(MY_FLAT_URL, auth=(API_KEY, ''), json=data)
     utils.print_response(r)
     return r.json()
-
-
-def delete_listing(listing_pk):
-    """
-    A listing may be deleted by setting its state to "rem" on its detail URL.
-    A deleted listing may still be queried (e.g., using get_listings(status='rem'))
-    though, but it may not be changed afterwards, nor will it be visible on the
-    portal, except for advertisers.
-    """
-    url = MY_FLAT_DETAIL_URL.format(pk=listing_pk)
-    data = {
-        "status": "rem",
-    }
-    r = requests.patch(url, auth=(API_KEY, ''), json=data)
-    utils.print_response(r)
-    r.raise_for_status()
 
 
 def get_apply_pdf(flat_pk):
@@ -178,17 +158,19 @@ def get_apply_pdf(flat_pk):
 
 
 if __name__ == "__main__":
-    # First, we delete previous listings with the same reference. This is
-    # of course a bad idea in production code, but allows us to re-created
-    # a listing with the same reference number on each run.
-    delete_active_listings(
-        ref_property="12",
-        ref_house="23",
-        ref_object="39")
+    # Create random property, house and object references to hopefully not
+    # clash with existing ones.
+    ref_property = ''.join(random.sample(string.ascii_lowercase, 8))
+    ref_house = ''.join(random.sample(string.ascii_lowercase, 8))
+    ref_object = ''.join(random.sample(string.ascii_lowercase, 8))
 
     # If not, we look up the employee ID and create a pre-flat
     advertiser_id = get_advertiser_id(name="Silvan Spross")
-    flat = create_pre_listing(advertiser_id=advertiser_id)
+    flat = create_pre_listing(
+        advertiser_id=advertiser_id,
+        ref_property=ref_property,
+        ref_house=ref_house,
+        ref_object=ref_object)
 
     # Then get the apply pdf
     get_apply_pdf(flat_pk=flat['pk'])
