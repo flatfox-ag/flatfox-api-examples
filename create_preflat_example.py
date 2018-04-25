@@ -149,12 +149,13 @@ def get_apply_pdf(flat_pk):
     # card PDF in German
     headers = {"Accept-Language": "de"}
     r = requests.get(url, auth=(API_KEY, ''), headers=headers)
-    content = base64.b64decode(r.json()['pdf'])
-
-    filename = '{pk}_apply_form.pdf'.format(pk=flat_pk)
-    with open(filename, 'wb') as out_file:
-        out_file.write(content)
-    del r
+    pdfBase64 = r.json().get('pdf')
+    if pdfBase64:
+        content = base64.b64decode(pdfBase64)
+        filename = '{pk}_apply_form.pdf'.format(pk=flat_pk)
+        with open(filename, 'wb') as out_file:
+            out_file.write(content)
+        del r
 
 
 if __name__ == "__main__":
