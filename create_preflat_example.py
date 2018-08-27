@@ -126,6 +126,7 @@ def create_pre_listing(advertiser_id, ref_property, ref_house, ref_object):
         # "number_of_rooms": "3.0",
         # "rent_charges": 100,
         # "rent_gross": 2070
+        # "language": "fr",
 
         # Optional agency fields (agency_* fields may be used for stats)
         # "agency_name": 'Verwaltung AG',
