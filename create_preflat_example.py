@@ -120,12 +120,20 @@ def create_pre_listing(advertiser_id, ref_property, ref_house, ref_object):
         "advertiser_phone_number": "+41 44 111 22 33",
         "advertiser_email": "silvan@spross.ch",
 
-        # optional fields
+        # Optional fields
         # "year_built": 1995,
         # "floor": None,
         # "number_of_rooms": "3.0",
         # "rent_charges": 100,
         # "rent_gross": 2070
+
+        # Optional agency fields (agency_* fields may be used for stats)
+        # "agency_name": 'Verwaltung AG',
+        # "agency_name2": 'c/o',
+        # "agency_street": 'Husacherstrasse 3',
+        # "agency_zipcode": '8304',
+        # "agency_city": 'Wallisellen',
+        # "agency_country": 'ch',
     }
     r = requests.post(MY_FLAT_URL, auth=(API_KEY, ''), json=data)
     utils.print_response(r)
