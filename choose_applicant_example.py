@@ -23,7 +23,19 @@ def choose_specific_applicant(pk):
     Example how to choose an applicant for a flat. All you need is
     an application pk.
     """
-    data = {"status": "chos"}
+    data = {
+        "status": "chos",
+
+        # Meta data is optional. You can store additional, structured
+        # information on this application and we will provide it to every other
+        # webhook event where this application is involved. E.g. the
+        # `applicant_chosen` event, which is often consumed by central storage
+        # systems.
+        "metadata": {
+            "mykey": "my value",
+            "anotherkey": "another value",
+        },
+    }
     url = APPLICATION_API_URL.format(host=API_SERVER_URL, pk=pk)
     r = requests.patch(url, auth=(API_KEY, ''), json=data)
     utils.print_response(r)
