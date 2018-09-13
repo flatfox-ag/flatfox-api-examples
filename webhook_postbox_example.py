@@ -33,12 +33,22 @@ def register_webhook():
       If you register a 'postbox' webhook, you have to pull pending events
       by yourself frequently. See example in get_events below.
 
+    And you can subscribe your webhook for one or more event types:
+
+    - 'push_dossier'
+      Is created when a user wants to send a specific applicant/dossier from
+      flatfox to another system for e.g. pre-filling a contract template.
+
+    - 'application_chosen'
+      Is created after an applicant was chosen as the new tenant for a listing.
+
     You can also change your webhook later.
 
     Example response for '/api/v1/webhook/':
 
         {
           "delivery_type": "push",
+          "event_types": ["push_dossier"],
           "push_url": "https://yourwebhhok.com/endpoint?key=yourownsecret"
         }
 
@@ -50,7 +60,8 @@ def register_webhook():
 
     # create the webhook we want for this example
     r = requests.post(WEBHOOK_URL, auth=(API_KEY, ''),
-                      json={'delivery_type': 'postbox'})
+                      json={'delivery_type': 'postbox',
+                            'event_types': ['push_dossier']})
     utils.print_response(r)
 
 
