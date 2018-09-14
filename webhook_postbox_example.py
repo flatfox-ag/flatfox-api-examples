@@ -50,7 +50,7 @@ def register_webhook(webhook_name):
           "name": "rem",
           "delivery_type": "push",
           "event_types": ["push_dossier"],
-          "push_url": "https://yourwebhhok.com/endpoint?key=yourownsecret"
+          "push_url": null,
         }
 
     """
