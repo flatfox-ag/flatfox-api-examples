@@ -48,7 +48,7 @@ def register_webhook(webhook_name):
 
         {
           "name": "rem",
-          "delivery_type": "push",
+          "delivery_type": "postbox",
           "event_types": ["push_dossier"],
           "push_url": null,
         }
