@@ -9,18 +9,20 @@ import utils
 # NB: Our API uses HTTP Basic Auth. You have to use the API key as username and
 #     leave the password blank for each request.
 # -----------------------------------------------------------------------------
-API_SERVER_URL = 'https://flatfox.ch'
-API_KEY = 'sk_xxxxxxxxxxxxxxxxxxxxxx'
+# API_SERVER_URL = 'https://flatfox.ch'
+# API_KEY = 'sk_xxxxxxxxxxxxxxxxxxxxxx
+API_SERVER_URL = 'http://localhost:8000'
+API_KEY = 'sk_olQQTfXrejjQfuoXuM0puHtH'
 
 
 # -----------------------------------------------------------------------------
 # API ENDPOINTS
 # -----------------------------------------------------------------------------
 WEBHOOK_URL = '{host}/api/v1/webhook/'.format(host=API_SERVER_URL)
-EVENT_URL = '{host}/api/v1/webhook/event/'.format(host=API_SERVER_URL)
+EVENT_URL = '{host}/api/v1/webhook/{name}/event/'
 
 
-def register_webhook():
+def register_webhook(webhook_name):
     """
     Example of how to register a webhook to receive events later. That needs to
     be done only once. You can choose between two delivery types:
@@ -47,6 +49,7 @@ def register_webhook():
     Example response for '/api/v1/webhook/':
 
         {
+          "name": "rem",
           "delivery_type": "push",
           "event_types": ["push_dossier"],
           "push_url": "https://yourwebhhok.com/endpoint?key=yourownsecret"
@@ -60,17 +63,18 @@ def register_webhook():
 
     # create the webhook we want for this example
     r = requests.post(WEBHOOK_URL, auth=(API_KEY, ''),
-                      json={'delivery_type': 'postbox',
+                      json={'name': webhook_name,
+                            'delivery_type': 'postbox',
                             'event_types': ['push_dossier']})
     utils.print_response(r)
 
 
-def get_events():
+def get_events(webhook_name):
     """
     The event api endpoint returns a list of events to work off. You also have
     to manually delete each event to remove them from this list later.
 
-    Example response for '/api/v1/webhook/event/':
+    Example response for '/api/v1/webhook/rem/event/':
 
         [
           {
@@ -96,7 +100,8 @@ def get_events():
         ]
 
     """
-    r = requests.get(EVENT_URL, auth=(API_KEY, ''))
+    url = EVENT_URL.format(host=API_SERVER_URL, name=webhook_name)
+    r = requests.get(url, auth=(API_KEY, ''))
     utils.print_response(r)
 
     return r.json()
@@ -123,8 +128,8 @@ def delete_event(event):
     utils.print_response(r)
 
 
-def check_for_new_events(interval):
-    events = get_events()
+def check_for_new_events(webhook_name, interval):
+    events = get_events(webhook_name=webhook_name)
 
     # Go through events
     for event in events:
@@ -147,12 +152,15 @@ def check_for_new_events(interval):
     # NB: You should consider to use a 'push' webhook instead of polling
     print "Checking again for new events in {} seconds...".format(interval)
     print "(Press CTRL+C to quit)"
-    threading.Timer(interval, check_for_new_events, [interval]).start()
+    threading.Timer(interval, check_for_new_events, [webhook_name, interval]).start()
 
 
 if __name__ == "__main__":
+    # You can name your own webhooks
+    webhook_name = 'rem'
+
     # Register a postbox webhook
-    register_webhook()
+    register_webhook(webhook_name=webhook_name)
 
     # Start checking for new events
-    check_for_new_events(interval=10)
+    check_for_new_events(webhook_name=webhook_name, interval=10)

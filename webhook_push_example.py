@@ -28,7 +28,7 @@ YOUR_PUSH_SERVER_URL = 'http://127.0.0.1:5000'
 WEBHOOK_URL = '{host}/api/v1/webhook/'.format(host=API_SERVER_URL)
 
 
-def register_webhook():
+def register_webhook(webhook_name):
     """
     Example of how to register a webhook to receive events later. That needs to
     be done only once. You can choose between two delivery types:
@@ -55,6 +55,7 @@ def register_webhook():
     Example response for '/api/v1/webhook/':
 
         {
+          "name": "rem",
           "delivery_type": "push",
           "event_types": ["push_dossier"],
           "push_url": "https://yourwebhhok.com/endpoint?key=yourownsecret"
@@ -70,7 +71,8 @@ def register_webhook():
     # NB: the url '/endpoint' has to be the same as in @app.route below.
     push_url = '{host}/endpoint'.format(host=YOUR_PUSH_SERVER_URL)
     r = requests.post(WEBHOOK_URL, auth=(API_KEY, ''),
-                      json={'delivery_type': 'push',
+                      json={'name': webhook_name,
+                            'delivery_type': 'push',
                             'event_types': ['push_dossier'],
                             'push_url': push_url})
 
@@ -121,8 +123,11 @@ def handle_events():
 
 
 if __name__ == "__main__":
+    # You can name your own webhooks
+    webhook_name = 'rem'
+
     # Register a push webhook
-    register_webhook()
+    register_webhook(webhook_name=webhook_name)
 
     # Start web server
     app.run(host="0.0.0.0", port=5000)
