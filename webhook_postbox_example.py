@@ -9,10 +9,8 @@ import utils
 # NB: Our API uses HTTP Basic Auth. You have to use the API key as username and
 #     leave the password blank for each request.
 # -----------------------------------------------------------------------------
-# API_SERVER_URL = 'https://flatfox.ch'
-# API_KEY = 'sk_xxxxxxxxxxxxxxxxxxxxxx
-API_SERVER_URL = 'http://localhost:8000'
-API_KEY = 'sk_olQQTfXrejjQfuoXuM0puHtH'
+API_SERVER_URL = 'https://flatfox.ch'
+API_KEY = 'sk_xxxxxxxxxxxxxxxxxxxxxx'
 
 
 # -----------------------------------------------------------------------------
