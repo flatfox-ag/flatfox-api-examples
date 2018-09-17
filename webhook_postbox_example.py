@@ -121,7 +121,8 @@ def get_dossier_details(event):
 
 
 def delete_event(event):
-    url = '{event_url}{id}'.format(event_url=EVENT_URL, id=event['id'])
+    event_url = EVENT_URL.format(host=API_SERVER_URL, name=webhook_name)
+    url = '{event_url}{id}'.format(event_url=event_url, id=event['id'])
     r = requests.delete(url, auth=(API_KEY, ''))
     utils.print_response(r)
 
