@@ -115,11 +115,6 @@ def create_pre_listing(advertiser_id, ref_property, ref_house, ref_object):
         # advertisers takes a list of objects with a pk
         "advertisers": [{"pk": advertiser_id}] if advertiser_id else None,
 
-        # Set these to control the contact row in the application form flyer.
-        "advertiser_name": "Silvan Spross",
-        "advertiser_phone_number": "+41 44 111 22 33",
-        "advertiser_email": "silvan@spross.ch",
-
         # Optional fields
         # "year_built": 1995,
         # "floor": None,
@@ -128,13 +123,19 @@ def create_pre_listing(advertiser_id, ref_property, ref_house, ref_object):
         # "rent_gross": 2070
         # "language": "fr",
 
-        # Optional agency fields (agency_* fields may be used for stats)
+        # Optional agency fields
+        # This fields are used for statistics and to control the contact
+        # row information in the application form flyer and IDX export accounts)
+        "agency_reference": "Silvan Spross",
+        "agency_phone": "+41 44 111 22 33",
+
         # "agency_name": 'Verwaltung AG',
         # "agency_name2": 'c/o',
         # "agency_street": 'Husacherstrasse 3',
         # "agency_zipcode": '8304',
         # "agency_city": 'Wallisellen',
         # "agency_country": 'ch',
+        # "agency_email": "info@verwatung.ch",
     }
     r = requests.post(MY_FLAT_URL, auth=(API_KEY, ''), json=data)
     utils.print_response(r)
