@@ -19,39 +19,19 @@ API_KEY = 'sk_xxxxxxxxxxxxxxxxxxxxxx'
 # -----------------------------------------------------------------------------
 # API ENDPOINTS
 # -----------------------------------------------------------------------------
-MY_FLAT_URL = '{host}/api/v1/my-flat/'.format(host=API_SERVER_URL)
+MY_FLAT_URL = '{host}/api/v1/listing/'.format(host=API_SERVER_URL)
 MY_FLAT_DETAIL_URL = MY_FLAT_URL + '{pk}/'
-MY_FLAT_EVENTS_URL = MY_FLAT_DETAIL_URL + 'events/'
+MY_FLAT_EVENTS_URL = MY_FLAT_DETAIL_URL + 'event/'
 
 
 def create_example_flat():
     """
     See `create_preflat_example.py` for more details.
     """
-    advertiser_id = create_preflat_example.get_advertiser_id(name="Silvan Spross")
     return create_preflat_example.create_pre_listing(
-        advertiser_id=advertiser_id,
         ref_property=''.join(random.sample(string.ascii_lowercase, 8)),
         ref_house=''.join(random.sample(string.ascii_lowercase, 8)),
         ref_object=''.join(random.sample(string.ascii_lowercase, 8)))
-
-
-# def delete_listing(listing_pk):
-#     """
-#     ATTENTION (2018-04-19): This feature is not working atm.
-#
-#     A listing may be deleted by setting its state to "rem" on its detail URL.
-#     A deleted listing may still be queried (e.g., using get_listings(status='rem'))
-#     though, but it may not be changed afterwards, nor will it be visible on the
-#     portal, except for advertisers.
-#     """
-#     url = MY_FLAT_DETAIL_URL.format(pk=listing_pk)
-#     data = {
-#         "status": "rem",
-#     }
-#     r = requests.patch(url, auth=(API_KEY, ''), json=data)
-#     utils.print_response(r)
-#     r.raise_for_status()
 
 
 def send_contract_confirmed_event(flat_id):

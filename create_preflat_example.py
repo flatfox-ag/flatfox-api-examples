@@ -18,46 +18,9 @@ API_KEY = 'sk_xxxxxxxxxxxxxxxxxxxxxx'
 # -----------------------------------------------------------------------------
 # API ENDPOINTS
 # -----------------------------------------------------------------------------
-MY_FLAT_URL = '{host}/api/v1/my-flat/'.format(host=API_SERVER_URL)
+MY_FLAT_URL = '{host}/api/v1/listing/'.format(host=API_SERVER_URL)
 MY_FLAT_DETAIL_URL = MY_FLAT_URL + '{pk}/'
-MY_FLAT_APPLY_PDF_URL = MY_FLAT_DETAIL_URL + 'apply-cards-pdf/'
-EMPLOYEE_LOOKUP_URL = '{host}/api/v1/employee/'.format(host=API_SERVER_URL)
-
-
-def get_advertiser_id(name):
-    """
-    Example how to look up an employee by email or name.
-    Goal is to get the employees user ID to use as advertiser for the pre flat.
-
-    The endpoint /api/v1/employee/ takes `fuzzy_name` OR `email` address as
-    filter attribute. The result would look like this:
-
-        [
-            {
-              "pk": 9012,
-              "dossier_pk": 31777,
-              "first_name": "Silvan",
-              "last_name": "Spross",
-              "name": "Silvan Spross",
-              "avatar_url": "/media/images/26fae47e85ale.jpg",
-              "avatar_color": null,
-              "organization": null,
-              "num_applications": {
-                "total": 10,
-              },
-              "phone_number": "079 393 92 12",
-              "email": "silvan.spross@flatfox.ch"
-            },
-            ...
-        ]
-
-    """
-    r = requests.get(EMPLOYEE_LOOKUP_URL, auth=(API_KEY, ''), params={
-        'fuzzy_name': name,  # Or for exact matches only: 'email': email,
-    })
-    utils.print_response(r)
-    data = r.json()
-    return data[0]['pk'] if data else None
+MY_FLAT_APPLY_PDF_URL = MY_FLAT_DETAIL_URL + 'flyer/'
 
 
 def get_listings(status, ref_property, ref_house, ref_object):
@@ -89,12 +52,9 @@ def get_existing_listings(ref_property, ref_house, ref_object):
         get_listings("dis", ref_property, ref_house, ref_object))
 
 
-def create_pre_listing(advertiser_id, ref_property, ref_house, ref_object):
+def create_pre_listing(ref_property, ref_house, ref_object):
     """
     Example of how to create a pre-flat.
-
-    For all possible values see:
-    https://flatfox.ch/api-docs/#!/my-flat/My_Flat_POST
 
     NB: Keep in mind: only one active flat with the same ref_property,
         ref_house and ref_object can exist.
@@ -112,10 +72,24 @@ def create_pre_listing(advertiser_id, ref_property, ref_house, ref_object):
         "zipcode": "8045",
         "city": u"Zürich",
 
-        # advertisers takes a list of objects with a pk
-        "advertisers": [{"pk": advertiser_id}] if advertiser_id else None,
+        # the responsible role(s) / employee(s) within Flatfox:
+        # role choices are:
+        # - manager (Bewirtschafter)
+        # - lessor (Vermieter)
+        # - assistant (Assistent)
+        # - field_representative (Aussendienstmitarbeiter)
+        # - vacancy_manager (Leerstandsmanager)
+        # - facility_manager (Hauswart)
 
-        # Optional fields
+        "roles": [{
+            "role": "manager",
+            "name": "Silvan Spross",
+            "phone": "+41 44 111 22 34",
+            "email": "silvan.spross@flatfox.ch"
+        }],
+
+        # Optional fields:
+        #
         # "year_built": 1995,
         # "floor": None,
         # "number_of_rooms": "3.0",
@@ -123,12 +97,13 @@ def create_pre_listing(advertiser_id, ref_property, ref_house, ref_object):
         # "rent_gross": 2070
         # "language": "fr",
 
-        # Optional agency fields
+        # Optional agency fields:
         # This fields are used for statistics and to control the contact
-        # row information in the application form flyer and IDX export accounts)
-        "agency_reference": "Silvan Spross",
-        "agency_phone": "+41 44 111 22 33",
-
+        # row information in the application form flyer. Usually the same public
+        # information is used as in an IDX export.
+        #
+        # "agency_reference": "Silvan Spross",
+        # "agency_phone": "+41 44 111 22 33",
         # "agency_name": 'Verwaltung AG',
         # "agency_name2": 'c/o',
         # "agency_street": 'Husacherstrasse 3',
@@ -175,10 +150,8 @@ if __name__ == "__main__":
     ref_house = ''.join(random.sample(string.ascii_lowercase, 8))
     ref_object = ''.join(random.sample(string.ascii_lowercase, 8))
 
-    # If not, we look up the employee ID and create a pre-flat
-    advertiser_id = get_advertiser_id(name="Silvan Spross")
+    # If not, we create the listing
     flat = create_pre_listing(
-        advertiser_id=advertiser_id,
         ref_property=ref_property,
         ref_house=ref_house,
         ref_object=ref_object)
